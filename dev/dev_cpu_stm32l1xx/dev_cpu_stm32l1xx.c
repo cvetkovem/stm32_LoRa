@@ -33,5 +33,5 @@ void cpuInit()
     RCC->CFGR |= RCC_CFGR_SW_PLL;
 
     /* Disable MSI */
-    RCC->CR &= ~RCC_CR_MSION;void TIM6_IRQHandler(void);
+    RCC->CR &= ~RCC_CR_MSION;
 }
