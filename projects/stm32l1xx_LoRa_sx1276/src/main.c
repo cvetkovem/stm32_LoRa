@@ -11,7 +11,7 @@ void spi_exchange(uint8_t send_data)
     GpioWrite(&(spi2.Nss), 0);
 
     ((SPI_TypeDef *)(spi1.Spi))->DR = send_data; //Пишем в буфер передатчика SPI2
-    ((SPI_TypeDef *)(spi2.Spi))->DR = 0x00; //Пишем в буфер передатчика SPI1. После этого стартует обмен данными
+    ((SPI_TypeDef *)(spi2.Spi))->DR = 0x0F; //Пишем в буфер передатчика SPI1. После этого стартует обмен данными
     while(!(((SPI_TypeDef *)(spi2.Spi))->SR & SPI_SR_RXNE)); //Ожидаем окончания приема данных модулем SPI1 (RXNE =1 - приемный буфер содержит данные)
     temp = ((SPI_TypeDef *)(spi2.Spi))->DR;//Считываем данные из приемного буфера SPI1. При этой операции происходит очистка буфера и сброс флага RXNE
 
@@ -43,10 +43,10 @@ void led_on_off(void) {
 int main()
 {
     cpuInit();
-/*
+
     NVIC_SetPriority(TIM6_IRQn, 1);
     NVIC_EnableIRQ(TIM6_IRQn);
-*/
+
     LED.pinIndex = 6;
     LED.portIndex = 1; //B
     GpioInit(&LED, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0);
@@ -81,6 +81,8 @@ int main()
 
     SpiInit(&spi1);
     SpiInit(&spi2);
+
+    SpiDeInit(&spi2);
 
     RCC->APB1ENR |= RCC_APB1ENR_TIM6EN;
     TIM6->PSC = 0x7A12;
