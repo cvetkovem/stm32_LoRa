@@ -15,6 +15,39 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __SPI_H__
 #define __SPI_H__
 
+/*!
+ * Data frame format
+ */
+typedef enum
+{
+    SPI_8_BIT = 0,
+    SPI_16_BIT
+}Spi_bits;
+
+/*!
+ * Frame format
+ */
+typedef enum
+{
+    SPI_MSB = 0,
+    SPI_LSB
+}Spi_MSBLSB;
+
+/*!
+ * Baud rate control
+ */
+typedef enum
+{
+    SPI_F_PCLK_2 = 0,
+    SPI_F_PCLK_4,
+    SPI_F_PCLK_8,
+    SPI_F_PCLK_16,
+    SPI_F_PCLK_32,
+    SPI_F_PCLK_64,
+    SPI_F_PCLK_128,
+    SPI_F_PCLK_256
+}Spi_F_PCLK;
+
 typedef struct Spi_t
 {
     uint32_t *Spi; //SPI1, SPI2 or SPI3
@@ -24,10 +57,11 @@ typedef struct Spi_t
     Gpio_t Nss;
 
     uint8_t slave_on;
-    uint8_t bits;
+    Spi_bits bits;
+    Spi_MSBLSB msb_lsb;
     uint8_t cpol;
     uint8_t cpha;
-    uint32_t bit_rate;
+    Spi_F_PCLK f_pclk;
 } Spi_t;
 
 /*!
