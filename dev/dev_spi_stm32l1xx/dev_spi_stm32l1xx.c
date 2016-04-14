@@ -20,15 +20,18 @@ void SpiInit(Spi_t *obj)
 
     /* Enable bus clock */
     if(obj->Spi == (SPI_TypeDef *)SPI1_BASE) {
-        RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
+        /* RCC->APB2ENR |= RCC_APB2ENR_SPI1EN; */
+        *((uint32_t *)(0x42000000+(32*0x23820)+4*12)) = 0x01;
         /* bit banding address for SPI1 */
         gpio_reg = 0x42000000+(32*0x13000);
     } else if(obj->Spi == (SPI_TypeDef *)SPI2_BASE){
-        RCC->APB1ENR |= RCC_APB1ENR_SPI2EN;
+        /* RCC->APB1ENR |= RCC_APB1ENR_SPI2EN; */
+        *((uint32_t *)(0x42000000+(32*0x23824)+4*14)) = 0x01;
         /* bit banding address for SPI2 */
         gpio_reg = 0x42000000+(32*0x3800);
     } else {
-        RCC->APB1ENR |= RCC_APB1ENR_SPI3EN;
+        /* RCC->APB1ENR |= RCC_APB1ENR_SPI3EN; */
+        *((uint32_t *)(0x42000000+(32*0x23824)+4*15)) = 0x01;
         /* bit banding address for SPI3 */
         gpio_reg = 0x42000000+(32*0x3C00);
     }
@@ -71,17 +74,20 @@ void SpiDeInit(Spi_t *obj)
         /* bit banding address for SPI1 */
         gpio_reg = 0x42000000+(32*0x13000);
         *((uint32_t *)(gpio_reg + 24)) = 0x00;
-        RCC->APB2ENR &= ~RCC_APB2ENR_SPI1EN;
+        /* RCC->APB2ENR &= ~RCC_APB2ENR_SPI1EN; */
+        *((uint32_t *)(0x42000000+(32*0x23820)+4*12)) = 0x00;
     } else if(obj->Spi == (SPI_TypeDef *)SPI2_BASE){
         /* bit banding address for SPI2 */
         gpio_reg = 0x42000000+(32*0x3800);
         *((uint32_t *)(gpio_reg + 24)) = 0x00;
-        RCC->APB1ENR &= ~RCC_APB1ENR_SPI2EN;
+        /* RCC->APB1ENR &= ~RCC_APB1ENR_SPI2EN; */
+        *((uint32_t *)(0x42000000+(32*0x23824)+4*14)) = 0x00;
     } else {
         /* bit banding address for SPI3 */
         gpio_reg = 0x42000000+(32*0x3C00);
         *((uint32_t *)(gpio_reg + 24)) = 0x00;
-        RCC->APB1ENR &= ~RCC_APB1ENR_SPI3EN;
+        /* RCC->APB1ENR &= ~RCC_APB1ENR_SPI3EN; */
+        *((uint32_t *)(0x42000000+(32*0x23824)+4*15)) = 0x00;
     }
 
     GpioDeInit(&obj->Mosi);
@@ -94,6 +100,7 @@ uint16_t SpiInOut(Spi_t *obj, uint16_t outData)
 {
     while(!(((SPI_TypeDef *)(obj->Spi))->SR & SPI_SR_TXE));
     ((SPI_TypeDef *)(obj->Spi))->DR = outData;
+
     while(!(((SPI_TypeDef *)(obj->Spi))->SR & SPI_SR_RXNE));
     return ((SPI_TypeDef *)(obj->Spi))->DR;
 }
