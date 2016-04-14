@@ -82,7 +82,7 @@ int main()
     SpiInit(&spi1);
     SpiInit(&spi2);
 
-    SpiDeInit(&spi2);
+    //SpiDeInit(&spi2);
 
     RCC->APB1ENR |= RCC_APB1ENR_TIM6EN;
     TIM6->PSC = 0x7A12;
@@ -95,6 +95,9 @@ int main()
     GpioRemoveInterrupt(&BUTTON);
     GpioSetInterrupt(&BUTTON, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, led_on_off);
 */
+
+  cpuDelay_ms(3000);
+  cpuDelay_us(65000);
 
   while(1);
 
