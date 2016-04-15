@@ -58,6 +58,8 @@
 		</Device>
 		<Compiler>
 			<Add option="-mfloat-abi=soft" />
+			<Add option="-std=c11" />
+			<Add option="-O2" />
 			<Add option="-fno-strict-aliasing" />
 			<Add symbol="STM32L152RB" />
 			<Add symbol="STM32L1XX_MD" />
@@ -68,8 +70,7 @@
 			<Add directory="..\..\dev" />
 		</Compiler>
 		<Linker>
-			<Add option="-eb_lib=n" />
-			<Add option="-eb_start_files" />
+			<Add option="-eb_lib=0" />
 			<Add option="-Wl,--gc-sections" />
 		</Linker>
 		<Unit filename="..\..\arch\stm32l1xx\cmsis\core_cm3.h">

@@ -16,13 +16,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include <stdlib.h>
 #include "dev_hw_timer.h"
 #include "timer.h"
-
-static bool LowPowerModeEnable = true;
-
-/*!
- * This flag is used to make sure we have looped through the main several time to avoid race issues
- */
-volatile uint8_t HasLoopedThroughMain = 0;
+#include "dev_cpu.h"
 
 /*!
  * Timers list head pointer
@@ -38,7 +32,7 @@ static TimerEvent_t *TimerListHead = NULL;
  * \param [IN]  obj Timer object to be become the new head
  * \param [IN]  remainingTime Remaining time of the previous head to be replaced
  */
-static void TimerInsertNewHeadTimer( TimerEvent_t *obj, uint32_t remainingTime );
+static void TimerInsertNewHeadTimer(TimerEvent_t *obj, uint32_t remainingTime);
 
 /*!
  * \brief Adds a timer to the list.
@@ -49,14 +43,14 @@ static void TimerInsertNewHeadTimer( TimerEvent_t *obj, uint32_t remainingTime )
  * \param [IN]  obj Timer object to be added to the list
  * \param [IN]  remainingTime Remaining time of the running head after which the object may be added
  */
-static void TimerInsertTimer( TimerEvent_t *obj, uint32_t remainingTime );
+static void TimerInsertTimer(TimerEvent_t *obj, uint32_t remainingTime);
 
 /*!
  * \brief Sets a timeout with the duration "timestamp"
  *
  * \param [IN] timestamp Delay duration
  */
-static void TimerSetTimeout( TimerEvent_t *obj );
+static void TimerSetTimeout(TimerEvent_t *obj);
 
 /*!
  * \brief Check if the Object to be added is not already in the list
@@ -64,27 +58,16 @@ static void TimerSetTimeout( TimerEvent_t *obj );
  * \param [IN] timestamp Delay duration
  * \retval true (the object is already in the list) or false
  */
-static bool TimerExists( TimerEvent_t *obj );
+static bool TimerExists(TimerEvent_t *obj);
 
 /*!
  * \brief Read the timer value of the currently running timer
  *
  * \retval value current timer value
  */
-uint32_t TimerGetValue( void );
+uint32_t TimerGetValue(void);
 
-/*
-void TimerSetLowPowerEnable( bool enable )
-{
-   LowPowerModeEnable = enable;
-}
-
-bool TimerGetLowPowerEnable( void )
-{
-    return LowPowerModeEnable;
-}
-
-void TimerInit( TimerEvent_t *obj, void ( *callback )( void ) )
+void TimerInit(TimerEvent_t *obj, void (*callback)(void))
 {
     obj->Timestamp = 0;
     obj->ReloadValue = 0;
@@ -98,11 +81,11 @@ void TimerStart( TimerEvent_t *obj )
     uint32_t elapsedTime = 0;
     uint32_t remainingTime = 0;
 
-    __disable_irq( );
+    cpuDisable_irq( );
 
     if( ( obj == NULL ) || ( TimerExists( obj ) == true ) )
     {
-        __enable_irq( );
+        cpuEnable_irq( );
         return;
     }
 
@@ -138,7 +121,7 @@ void TimerStart( TimerEvent_t *obj )
              TimerInsertTimer( obj, remainingTime );
         }
     }
-    __enable_irq( );
+    cpuEnable_irq( );
 }
 
 static void TimerInsertTimer( TimerEvent_t *obj, uint32_t remainingTime )
@@ -215,12 +198,8 @@ void TimerIrqHandler( void )
 {
     uint32_t elapsedTime = 0;
 
-    if( LowPowerModeEnable == false )
-    {
-        if( TimerListHead == NULL )
-        {
+    if( TimerListHead == NULL ) {
             return;  // Only necessary when the standard timer is used as a time base
-        }
     }
 
     elapsedTime = TimerGetValue( );
@@ -255,7 +234,7 @@ void TimerIrqHandler( void )
 
 void TimerStop( TimerEvent_t *obj )
 {
-    __disable_irq( );
+    cpuDisable_irq( );
 
     uint32_t elapsedTime = 0;
     uint32_t remainingTime = 0;
@@ -266,7 +245,7 @@ void TimerStop( TimerEvent_t *obj )
     // List is empty or the Obj to stop does not exist
     if( ( TimerListHead == NULL ) || ( obj == NULL ) )
     {
-        __enable_irq( );
+        cpuEnable_irq( );
         return;
     }
 
@@ -337,7 +316,7 @@ void TimerStop( TimerEvent_t *obj )
             }
         }
     }
-    __enable_irq( );
+    cpuEnable_irq( );
 }
 
 static bool TimerExists( TimerEvent_t *obj )
@@ -355,29 +334,21 @@ static bool TimerExists( TimerEvent_t *obj )
     return false;
 }
 
-void TimerReset( TimerEvent_t *obj )
+void TimerReset(TimerEvent_t *obj)
 {
-    TimerStop( obj );
-    TimerStart( obj );
+    TimerStop(obj);
+    TimerStart(obj);
 }
 
-void TimerSetValue( TimerEvent_t *obj, uint32_t value )
+void TimerSetValue(TimerEvent_t *obj, uint32_t value)
 {
     uint32_t minValue = 0;
 
-    TimerStop( obj );
+    TimerStop(obj);
 
-    if( LowPowerModeEnable == true )
-    {
-        minValue = RtcGetMinimumTimeout( );
-    }
-    else
-    {
-        minValue = TimerHwGetMinimumTimeout( );
-    }
+    minValue = TimerHwGetMinimumTimeout();
 
-    if( value < minValue )
-    {
+    if(value < minValue) {
         value = minValue;
     }
 
@@ -385,70 +356,17 @@ void TimerSetValue( TimerEvent_t *obj, uint32_t value )
     obj->ReloadValue = value;
 }
 
-uint32_t TimerGetValue( void )
+uint32_t TimerGetValue(void)
 {
-    if( LowPowerModeEnable == true )
-    {
-        return RtcGetTimerElapsedTime( );
-    }
-    else
-    {
-        return TimerHwGetElapsedTime( );
-    }
+    return TimerHwGetElapsedTime();
 }
 
-TimerTime_t TimerGetCurrentTime( void )
+TimerTime_t TimerGetCurrentTime(void)
 {
-    if( LowPowerModeEnable == true )
-    {
-        return RtcGetTimerValue( );
-    }
-    else
-    {
-        return TimerHwGetTime( );
-    }
+    return TimerHwGetTime();
 }
 
-static void TimerSetTimeout( TimerEvent_t *obj )
+static void TimerSetTimeout(TimerEvent_t *obj)
 {
-    HasLoopedThroughMain = 0;
-
-    if( LowPowerModeEnable == true )
-    {
-        RtcSetTimeout( obj->Timestamp );
-    }
-    else
-    {
-        TimerHwStart( obj->Timestamp );
-    }
-}
-
-void TimerLowPowerHandler( void )
-{
-    if( ( TimerListHead != NULL ) && ( TimerListHead->IsRunning == true ) )
-    {
-        if( HasLoopedThroughMain < 5 )
-        {
-            HasLoopedThroughMain++;
-        }
-        else
-        {
-            HasLoopedThroughMain = 0;
-
-            if( LowPowerModeEnable == true )
-            {
-                RtcEnterLowPowerStopMode( );
-            }
-            else
-            {
-                TimerHwEnterLowPowerStopMode( );
-            }
-        }
-    }
-}
-*/
-
-void TimerIrqHandler(void)
-{
-
+    TimerHwStart(obj->Timestamp);
 }

@@ -87,3 +87,12 @@ void cpuDelay_us(uint32_t u_sec)
     cpuStopTimer();
 }
 
+__INLINE void cpuDisable_irq()
+{
+    __ASM volatile ("cpsid i");
+}
+
+__INLINE void cpuEnable_irq()
+{
+    __ASM volatile ("cpsie i");
+}

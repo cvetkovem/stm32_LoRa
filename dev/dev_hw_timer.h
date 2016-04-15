@@ -1,5 +1,5 @@
-#ifndef __DEV_HW_TIMER_STM32L1XX_H__
-#define __DEV_HW_TIMER_STM32L1XX_H__
+#ifndef __DEV_HW_TIMER_H__
+#define __DEV_HW_TIMER_H__
 
 /* Timer time variable definition */
 #ifndef TimerTime_t
@@ -8,7 +8,8 @@ typedef uint32_t TimerTime_t;
 
 /*
  * Initializes the timer
- * The timer is based on TIM2 with a 100uS time basis
+ * The timer is based on TIM2 (for stm32l1xx)
+ * with a 100uS time basis
  */
 void TimerHwInit(void);
 
@@ -41,4 +42,4 @@ TimerTime_t TimerHwGetElapsedTime(void);
 
 extern void TimerIrqHandler(void);
 
-#endif // __DEV_HW_TIMER_STM32L1XX_H__
+#endif // __DEV_HW_TIMER_H__

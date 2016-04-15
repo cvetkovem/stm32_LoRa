@@ -1,5 +1,5 @@
-#ifndef CONF_BOARD_H_INCLUDED
-#define CONF_BOARD_H_INCLUDED
+#ifndef __CONF_BOARD_H_INCLUDED__
+#define __CONF_BOARD_H_INCLUDED__
 
 #include "stm32l1xx.h"
 #include "dev_cpu.h"
@@ -7,4 +7,4 @@
 #include "spi.h"
 #include "sx1276.h"
 
-#endif /* CONF_BOARD_H_INCLUDED */
+#endif /* __CONF_BOARD_H_INCLUDED__ */
