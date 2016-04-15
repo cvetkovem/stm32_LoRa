@@ -19,12 +19,12 @@ void SpiInit(Spi_t *obj)
     ((GPIO_TypeDef *)(AHBPERIPH_BASE + 0x400*(obj->Nss.portIndex )))->AFR[(obj->Nss.pinIndex  < 8)?0:1] |= 0x05 << 4*(obj->Nss.pinIndex  - ((obj->Nss.pinIndex  < 8)?0:8));
 
     /* Enable bus clock */
-    if(obj->Spi == (SPI_TypeDef *)SPI1_BASE) {
+    if((SPI_TypeDef *)(obj->Spi) == (SPI_TypeDef *)SPI1_BASE) {
         /* RCC->APB2ENR |= RCC_APB2ENR_SPI1EN; */
         *((uint32_t *)(0x42000000+(32*0x23820)+4*12)) = 0x01;
         /* bit banding address for SPI1 */
         gpio_reg = 0x42000000+(32*0x13000);
-    } else if(obj->Spi == (SPI_TypeDef *)SPI2_BASE){
+    } else if((SPI_TypeDef *)(obj->Spi) == (SPI_TypeDef *)SPI2_BASE){
         /* RCC->APB1ENR |= RCC_APB1ENR_SPI2EN; */
         *((uint32_t *)(0x42000000+(32*0x23824)+4*14)) = 0x01;
         /* bit banding address for SPI2 */
@@ -70,13 +70,13 @@ void SpiDeInit(Spi_t *obj)
     register uint32_t gpio_reg;
 
     /* Disable SPI */
-    if(obj->Spi == (SPI_TypeDef *)SPI1_BASE) {
+    if((SPI_TypeDef *)(obj->Spi) == (SPI_TypeDef *)SPI1_BASE) {
         /* bit banding address for SPI1 */
         gpio_reg = 0x42000000+(32*0x13000);
         *((uint32_t *)(gpio_reg + 24)) = 0x00;
         /* RCC->APB2ENR &= ~RCC_APB2ENR_SPI1EN; */
         *((uint32_t *)(0x42000000+(32*0x23820)+4*12)) = 0x00;
-    } else if(obj->Spi == (SPI_TypeDef *)SPI2_BASE){
+    } else if((SPI_TypeDef *)(obj->Spi) == (SPI_TypeDef *)SPI2_BASE){
         /* bit banding address for SPI2 */
         gpio_reg = 0x42000000+(32*0x3800);
         *((uint32_t *)(gpio_reg + 24)) = 0x00;

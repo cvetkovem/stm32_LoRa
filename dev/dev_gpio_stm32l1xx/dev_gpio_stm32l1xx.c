@@ -84,7 +84,7 @@ void GpioDeInit(Gpio_t *obj) {
 
 void GpioSetInterrupt(Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriority, GpioIrqHandler *irqHandler)
 {
-    register uint32_t gpio_reg;
+    //register uint32_t gpio_reg;
 
     if(irqHandler == NULL) {
         return;

@@ -56,7 +56,7 @@ int main()
     GpioInit(&BUTTON, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0);
 
     /* Slave */
-    spi1.slave_on = 1; spi1.Spi = SPI1;
+    spi1.slave_on = 1; spi1.Spi = (uint32_t *)SPI1;
     spi1.Mosi.pinIndex = 12; spi1.Mosi.portIndex = 0;
     spi1.Miso.pinIndex = 11; spi1.Miso.portIndex = 0;
     spi1.Sclk.pinIndex = 5;  spi1.Sclk.portIndex = 0;
@@ -68,7 +68,7 @@ int main()
     spi1.msb_lsb = SPI_MSB;
 
     /* Master */
-    spi2.slave_on = 0; spi2.Spi = SPI2;
+    spi2.slave_on = 0; spi2.Spi = (uint32_t *)SPI2;
     spi2.Mosi.pinIndex = 15; spi2.Mosi.portIndex = 1;
     spi2.Miso.pinIndex = 14; spi2.Miso.portIndex = 1;
     spi2.Sclk.pinIndex = 13; spi2.Sclk.portIndex = 1;

@@ -55,7 +55,7 @@ __INLINE static void cpuTimerInit_us()
     /* RCC->APB1ENR |= RCC_APB1ENR_TIM3EN; */
     *((uint32_t *)(0x42000000 + 32*0x23824 + 4)) = 0x01;
 
-    TIM3->PSC = 0x0020;
+    TIM3->PSC = 0x001F;
     TIM3->EGR |= TIM_EGR_UG;
     TIM3->CR1 |= TIM_CR1_CEN;
 }
