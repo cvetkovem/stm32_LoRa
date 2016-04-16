@@ -2,7 +2,7 @@
 
 Gpio_t LED, BUTTON;
 
-
+/*
 Spi_t spi1, spi2;
 uint8_t temp;
 
@@ -31,21 +31,24 @@ void TIM6_IRQHandler(void)
     spi_exchange(tmp2);
     tmp2++;
 }
-
-/*
-volatile uint8_t ld = 0;
-void led_on_off(void) {
-    GpioWrite(&LED, ld);
-    ld = !(ld & 0x01);
-}
 */
+
+void led_on(void) {
+    GpioWrite(&LED, 1);
+}
+
+void led_off(void) {
+    GpioWrite(&LED, 0);
+}
 
 int main()
 {
     cpuInit();
 
+/*
     NVIC_SetPriority(TIM6_IRQn, 1);
     NVIC_EnableIRQ(TIM6_IRQn);
+*/
 
     LED.pinIndex = 6;
     LED.portIndex = 1; //B
@@ -56,6 +59,7 @@ int main()
     GpioInit(&BUTTON, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0);
 
     /* Slave */
+/*
     spi1.slave_on = 1; spi1.Spi = (uint32_t *)SPI1;
     spi1.Mosi.pinIndex = 12; spi1.Mosi.portIndex = 0;
     spi1.Miso.pinIndex = 11; spi1.Miso.portIndex = 0;
@@ -66,8 +70,9 @@ int main()
     spi1.cpol = 0;
     spi1.f_pclk = SPI_F_PCLK_32;
     spi1.msb_lsb = SPI_MSB;
-
+*/
     /* Master */
+/*
     spi2.slave_on = 0; spi2.Spi = (uint32_t *)SPI2;
     spi2.Mosi.pinIndex = 15; spi2.Mosi.portIndex = 1;
     spi2.Miso.pinIndex = 14; spi2.Miso.portIndex = 1;
@@ -89,17 +94,33 @@ int main()
     TIM6->ARR = 0x03FF;
     TIM6->DIER |= TIM_DIER_UIE;
     TIM6->CR1 |= TIM_CR1_CEN;
-
+*/
 /*
     GpioSetInterrupt(&BUTTON, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, led_on_off);
     GpioRemoveInterrupt(&BUTTON);
     GpioSetInterrupt(&BUTTON, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, led_on_off);
 */
 
+/*
   cpuDelay_ms(3000);
   cpuDelay_us(65000);
+*/
 
-  while(1);
+    TimerHwInit();
+    //TimerHwStart(10000000);
+    //TimerHwDeInit();
 
-  return 0;
+    TimerEvent_t t1,t2;
+    TimerInit(&t1, led_on);
+    TimerInit(&t2, led_off);
+
+    TimerSetValue(&t1, 5000000);
+    TimerSetValue(&t2, 10000000);
+
+    TimerStart(&t1);
+    TimerStart(&t2);
+
+    while(1);
+
+    return 0;
 }

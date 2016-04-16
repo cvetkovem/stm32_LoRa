@@ -76,55 +76,46 @@ void TimerInit(TimerEvent_t *obj, void (*callback)(void))
     obj->Next = NULL;
 }
 
-void TimerStart( TimerEvent_t *obj )
+void TimerStart(TimerEvent_t *obj)
 {
     uint32_t elapsedTime = 0;
     uint32_t remainingTime = 0;
 
-    cpuDisable_irq( );
+    cpuDisable_irq();
 
-    if( ( obj == NULL ) || ( TimerExists( obj ) == true ) )
-    {
-        cpuEnable_irq( );
+    if((obj == NULL) || (TimerExists(obj) == true)) {
+        cpuEnable_irq();
         return;
     }
 
     obj->Timestamp = obj->ReloadValue;
     obj->IsRunning = false;
 
-    if( TimerListHead == NULL )
-    {
-        TimerInsertNewHeadTimer( obj, obj->Timestamp );
-    }
-    else
-    {
-        if( TimerListHead->IsRunning == true )
-        {
-            elapsedTime = TimerGetValue( );
-            if( elapsedTime > TimerListHead->Timestamp )
-            {
+    if(TimerListHead == NULL) {
+        TimerInsertNewHeadTimer(obj, obj->Timestamp);
+    } else {
+        /* if now timer run, calculate remaining time */
+        if(TimerListHead->IsRunning == true) {
+            elapsedTime = TimerGetValue();
+            if(elapsedTime > TimerListHead->Timestamp) {
                 elapsedTime = TimerListHead->Timestamp; // security but should never occur
             }
             remainingTime = TimerListHead->Timestamp - elapsedTime;
-        }
-        else
-        {
+        } else {
             remainingTime = TimerListHead->Timestamp;
         }
 
-        if( obj->Timestamp < remainingTime )
-        {
-            TimerInsertNewHeadTimer( obj, remainingTime );
-        }
-        else
-        {
-             TimerInsertTimer( obj, remainingTime );
+        if(obj->Timestamp < remainingTime) {
+            TimerInsertNewHeadTimer(obj, remainingTime);
+        } else {
+             TimerInsertTimer(obj, remainingTime);
         }
     }
-    cpuEnable_irq( );
+
+    cpuEnable_irq();
 }
 
-static void TimerInsertTimer( TimerEvent_t *obj, uint32_t remainingTime )
+static void TimerInsertTimer(TimerEvent_t *obj, uint32_t remainingTime)
 {
     uint32_t aggregatedTimestamp = 0;      // hold the sum of timestamps
     uint32_t aggregatedTimestampNext = 0;  // hold the sum of timestamps up to the next event
@@ -132,44 +123,33 @@ static void TimerInsertTimer( TimerEvent_t *obj, uint32_t remainingTime )
     TimerEvent_t* prev = TimerListHead;
     TimerEvent_t* cur = TimerListHead->Next;
 
-    if( cur == NULL )
-    { // obj comes just after the head
+    if(cur == NULL) { // obj comes just after the head
         obj->Timestamp -= remainingTime;
         prev->Next = obj;
         obj->Next = NULL;
-    }
-    else
-    {
+    } else {
         aggregatedTimestamp = remainingTime;
         aggregatedTimestampNext = remainingTime + cur->Timestamp;
 
-        while( prev != NULL )
-        {
-            if( aggregatedTimestampNext > obj->Timestamp )
-            {
+        while(prev != NULL) {
+            if(aggregatedTimestampNext > obj->Timestamp) {
                 obj->Timestamp -= aggregatedTimestamp;
-                if( cur != NULL )
-                {
+                if(cur != NULL) {
                     cur->Timestamp -= obj->Timestamp;
                 }
                 prev->Next = obj;
                 obj->Next = cur;
                 break;
-            }
-            else
-            {
+            } else {
                 prev = cur;
                 cur = cur->Next;
-                if( cur == NULL )
-                { // obj comes at the end of the list
+                if(cur == NULL) { // obj comes at the end of the list
                     aggregatedTimestamp = aggregatedTimestampNext;
                     obj->Timestamp -= aggregatedTimestamp;
                     prev->Next = obj;
                     obj->Next = NULL;
                     break;
-                }
-                else
-                {
+                } else {
                     aggregatedTimestamp = aggregatedTimestampNext;
                     aggregatedTimestampNext = aggregatedTimestampNext + cur->Timestamp;
                 }
@@ -178,12 +158,11 @@ static void TimerInsertTimer( TimerEvent_t *obj, uint32_t remainingTime )
     }
 }
 
-static void TimerInsertNewHeadTimer( TimerEvent_t *obj, uint32_t remainingTime )
+static void TimerInsertNewHeadTimer(TimerEvent_t *obj, uint32_t remainingTime)
 {
     TimerEvent_t* cur = TimerListHead;
 
-    if( cur != NULL )
-    {
+    if(cur != NULL) {
         cur->Timestamp = remainingTime - obj->Timestamp;
         cur->IsRunning = false;
     }
@@ -191,50 +170,44 @@ static void TimerInsertNewHeadTimer( TimerEvent_t *obj, uint32_t remainingTime )
     obj->Next = cur;
     obj->IsRunning = true;
     TimerListHead = obj;
-    TimerSetTimeout( TimerListHead );
+    TimerSetTimeout(TimerListHead);
 }
 
-void TimerIrqHandler( void )
+void TimerIrqHandler(void)
 {
     uint32_t elapsedTime = 0;
 
-    if( TimerListHead == NULL ) {
+    if(TimerListHead == NULL) {
             return;  // Only necessary when the standard timer is used as a time base
     }
 
-    elapsedTime = TimerGetValue( );
+    elapsedTime = TimerGetValue();
 
-    if( elapsedTime > TimerListHead->Timestamp )
-    {
+    if(elapsedTime > TimerListHead->Timestamp) {
         TimerListHead->Timestamp = 0;
-    }
-    else
-    {
+    } else {
         TimerListHead->Timestamp -= elapsedTime;
     }
 
-    while( ( TimerListHead != NULL ) && ( TimerListHead->Timestamp == 0 ) )
-    {
+    while((TimerListHead != NULL) && (TimerListHead->Timestamp == 0)) {
         TimerEvent_t* elapsedTimer = TimerListHead;
         TimerListHead = TimerListHead->Next;
 
-        if( elapsedTimer->Callback != NULL )
-        {
-            elapsedTimer->Callback( );
+        if(elapsedTimer->Callback != NULL) {
+            elapsedTimer->Callback();
         }
     }
 
     // start the next TimerListHead if it exists
-    if( TimerListHead != NULL )
-    {
+    if(TimerListHead != NULL) {
         TimerListHead->IsRunning = true;
-        TimerSetTimeout( TimerListHead );
+        TimerSetTimeout(TimerListHead);
     }
 }
 
-void TimerStop( TimerEvent_t *obj )
+void TimerStop(TimerEvent_t *obj)
 {
-    cpuDisable_irq( );
+    cpuDisable_irq();
 
     uint32_t elapsedTime = 0;
     uint32_t remainingTime = 0;
@@ -243,94 +216,74 @@ void TimerStop( TimerEvent_t *obj )
     TimerEvent_t* cur = TimerListHead;
 
     // List is empty or the Obj to stop does not exist
-    if( ( TimerListHead == NULL ) || ( obj == NULL ) )
-    {
-        cpuEnable_irq( );
+    if((TimerListHead == NULL) || (obj == NULL)) {
+        cpuEnable_irq();
         return;
     }
 
-    if( TimerListHead == obj ) // Stop the Head
-    {
-        if( TimerListHead->IsRunning == true ) // The head is already running
-        {
-            elapsedTime = TimerGetValue( );
-            if( elapsedTime > obj->Timestamp )
-            {
+    if(TimerListHead == obj) { // Stop the Head
+        if(TimerListHead->IsRunning == true) { // The head is already running
+            elapsedTime = TimerGetValue();
+
+            if(elapsedTime > obj->Timestamp) {
                 elapsedTime = obj->Timestamp;
             }
 
             remainingTime = obj->Timestamp - elapsedTime;
 
-            if( TimerListHead->Next != NULL )
-            {
+            if(TimerListHead->Next != NULL) {
                 TimerListHead->IsRunning = false;
                 TimerListHead = TimerListHead->Next;
                 TimerListHead->Timestamp += remainingTime;
                 TimerListHead->IsRunning = true;
-                TimerSetTimeout( TimerListHead );
-            }
-            else
-            {
+                TimerSetTimeout(TimerListHead);
+            } else {
                 TimerListHead = NULL;
             }
-        }
-        else // Stop the head before it is started
-        {
-            if( TimerListHead->Next != NULL )
-            {
+        } else { // Stop the head before it is started
+            if(TimerListHead->Next != NULL) {
                 remainingTime = obj->Timestamp;
                 TimerListHead = TimerListHead->Next;
                 TimerListHead->Timestamp += remainingTime;
-            }
-            else
-            {
+            } else {
                 TimerListHead = NULL;
             }
         }
-    }
-    else // Stop an object within the list
-    {
+    } else { // Stop an object within the list
         remainingTime = obj->Timestamp;
 
-        while( cur != NULL )
-        {
-            if( cur == obj )
-            {
-                if( cur->Next != NULL )
-                {
+        while(cur != NULL) {
+            if(cur == obj) {
+                if(cur->Next != NULL) {
                     cur = cur->Next;
                     prev->Next = cur;
                     cur->Timestamp += remainingTime;
-                }
-                else
-                {
+                } else {
                     cur = NULL;
                     prev->Next = cur;
                 }
                 break;
-            }
-            else
-            {
+            } else {
                 prev = cur;
                 cur = cur->Next;
             }
         }
     }
-    cpuEnable_irq( );
+
+    cpuEnable_irq();
 }
 
-static bool TimerExists( TimerEvent_t *obj )
+static bool TimerExists(TimerEvent_t *obj)
 {
     TimerEvent_t* cur = TimerListHead;
 
-    while( cur != NULL )
-    {
-        if( cur == obj )
-        {
+    while(cur != NULL) {
+        if(cur == obj) {
             return true;
         }
         cur = cur->Next;
     }
+
     return false;
 }
 
