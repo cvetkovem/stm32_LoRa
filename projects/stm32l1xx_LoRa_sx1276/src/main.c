@@ -1,126 +1,185 @@
 #include "conf_board.h"
 
+#define RF_FREQUENCY                    868000000 // Hz
+#define TX_OUTPUT_POWER                 14        // dBm
+
+#define LORA_BANDWIDTH                  0         // [0: 125 kHz,
+                                                  //  1: 250 kHz,
+                                                  //  2: 500 kHz,
+                                                  //  3: Reserved]
+#define LORA_SPREADING_FACTOR           7         // [SF7..SF12]
+#define LORA_CODINGRATE                 1         // [1: 4/5,
+                                                  //  2: 4/6,
+                                                  //  3: 4/7,
+                                                  //  4: 4/8]
+#define LORA_PREAMBLE_LENGTH            8         // Same for Tx and Rx
+#define LORA_SYMBOL_TIMEOUT             5         // Symbols
+#define LORA_FIX_LENGTH_PAYLOAD_ON      false
+#define LORA_IQ_INVERSION_ON            false
+#define LORA_CRC_ON                     true
+
+#define RX_TIMEOUT_VALUE                1000000   // uS
+#define TX_TIMEOUT_VALUE                3000000   // uS
+#define BUFFER_SIZE                     1        // Define the payload size here
+
+uint16_t BufferSize = BUFFER_SIZE;
+uint8_t Buffer[BUFFER_SIZE];
+
+/* Radio events function pointer */
+static RadioEvents_t RadioEvents;
+/* Function to be executed on Radio Tx Done event */
+void OnTxDone(void);
+/* Function to be executed on Radio Rx Done event */
+void OnRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr);
+/* Function executed on Radio Tx Timeout event */
+void OnTxTimeout(void);
+/* Function executed on Radio Rx Timeout event */
+void OnRxTimeout(void);
+/* Function executed on Radio Rx Error event */
+void OnRxError(void);
+
+void boardInit(void);
+void send_on_off(void);
+void TIM6_IRQHandler(void);
+
 Gpio_t LED, BUTTON;
-
-/*
-Spi_t spi1, spi2;
-uint8_t temp;
-
-void spi_exchange(uint8_t send_data)
-{
-    GpioWrite(&(spi2.Nss), 0);
-
-    ((SPI_TypeDef *)(spi1.Spi))->DR = send_data; //Пишем в буфер передатчика SPI2
-    ((SPI_TypeDef *)(spi2.Spi))->DR = 0x0F; //Пишем в буфер передатчика SPI1. После этого стартует обмен данными
-    while(!(((SPI_TypeDef *)(spi2.Spi))->SR & SPI_SR_RXNE)); //Ожидаем окончания приема данных модулем SPI1 (RXNE =1 - приемный буфер содержит данные)
-    temp = ((SPI_TypeDef *)(spi2.Spi))->DR;//Считываем данные из приемного буфера SPI1. При этой операции происходит очистка буфера и сброс флага RXNE
-
-    GpioWrite(&(spi2.Nss), 1);
-}
-
-volatile uint8_t tmp = 0, tmp2 = 0;
-void TIM6_IRQHandler(void)
-{
-    TIM6->SR &= ~TIM_SR_UIF;
-
-    tmp = GpioRead(&BUTTON);
-    GpioWrite(&LED, tmp);
-    //tmp = !(tmp & 0x01);
-    //GPIOB->ODR ^= GPIO_OTYPER_ODR_6;
-
-    spi_exchange(tmp2);
-    tmp2++;
-}
-*/
-
-void led_on(void) {
-    GpioWrite(&LED, 1);
-}
-
-void led_off(void) {
-    GpioWrite(&LED, 0);
-}
+extern SX1276_t SX1276;
 
 int main()
 {
-    cpuInit();
+    boardInit();
+
+    // Radio initialization
+    RadioEvents.TxDone = OnTxDone;
+    RadioEvents.RxDone = OnRxDone;
+    RadioEvents.TxTimeout = OnTxTimeout;
+    RadioEvents.RxTimeout = OnRxTimeout;
+    RadioEvents.RxError = OnRxError;
+
+    SX1276Init(&RadioEvents);
+    SX1276SetChannel(RF_FREQUENCY);
+
+    SX1276SetTxConfig(MODEM_LORA, TX_OUTPUT_POWER, 0, LORA_BANDWIDTH,
+                                   LORA_SPREADING_FACTOR, LORA_CODINGRATE,
+                                   LORA_PREAMBLE_LENGTH, LORA_FIX_LENGTH_PAYLOAD_ON,
+                                   LORA_CRC_ON, 0, 0, LORA_IQ_INVERSION_ON, TX_TIMEOUT_VALUE);
 
 /*
-    NVIC_SetPriority(TIM6_IRQn, 1);
-    NVIC_EnableIRQ(TIM6_IRQn);
+    SX1276SetRxConfig(MODEM_LORA, LORA_BANDWIDTH, LORA_SPREADING_FACTOR,
+                                   LORA_CODINGRATE, 0, LORA_PREAMBLE_LENGTH,
+                                   LORA_SYMBOL_TIMEOUT, LORA_FIX_LENGTH_PAYLOAD_ON,
+                                   0, LORA_CRC_ON, 0, 0, LORA_IQ_INVERSION_ON, true);
 */
-
-    LED.pinIndex = 6;
-    LED.portIndex = 1; //B
-    GpioInit(&LED, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0);
-
-    BUTTON.pinIndex = 0;
-    BUTTON.portIndex = 0; //A
-    GpioInit(&BUTTON, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0);
-
-    /* Slave */
-/*
-    spi1.slave_on = 1; spi1.Spi = (uint32_t *)SPI1;
-    spi1.Mosi.pinIndex = 12; spi1.Mosi.portIndex = 0;
-    spi1.Miso.pinIndex = 11; spi1.Miso.portIndex = 0;
-    spi1.Sclk.pinIndex = 5;  spi1.Sclk.portIndex = 0;
-    spi1.Nss.pinIndex = 4;   spi1.Nss.portIndex = 0;
-    spi1.bits = SPI_8_BIT;
-    spi1.cpha = 0;
-    spi1.cpol = 0;
-    spi1.f_pclk = SPI_F_PCLK_32;
-    spi1.msb_lsb = SPI_MSB;
-*/
-    /* Master */
-/*
-    spi2.slave_on = 0; spi2.Spi = (uint32_t *)SPI2;
-    spi2.Mosi.pinIndex = 15; spi2.Mosi.portIndex = 1;
-    spi2.Miso.pinIndex = 14; spi2.Miso.portIndex = 1;
-    spi2.Sclk.pinIndex = 13; spi2.Sclk.portIndex = 1;
-    spi2.Nss.pinIndex = 12;  spi2.Nss.portIndex = 1;
-    spi2.bits = SPI_8_BIT;
-    spi2.cpha = 0;
-    spi2.cpol = 0;
-    spi2.f_pclk = SPI_F_PCLK_32;
-    spi2.msb_lsb = SPI_MSB;
-
-    SpiInit(&spi1);
-    SpiInit(&spi2);
-
-    //SpiDeInit(&spi2);
-
-    RCC->APB1ENR |= RCC_APB1ENR_TIM6EN;
-    TIM6->PSC = 0x7A12;
-    TIM6->ARR = 0x03FF;
-    TIM6->DIER |= TIM_DIER_UIE;
-    TIM6->CR1 |= TIM_CR1_CEN;
-*/
-/*
-    GpioSetInterrupt(&BUTTON, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, led_on_off);
-    GpioRemoveInterrupt(&BUTTON);
-    GpioSetInterrupt(&BUTTON, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, led_on_off);
-*/
-
-/*
-  cpuDelay_ms(3000);
-  cpuDelay_us(65000);
-*/
-
-    TimerHwInit();
-    //TimerHwStart(10000000);
-    //TimerHwDeInit();
-
-    TimerEvent_t t1,t2;
-    TimerInit(&t1, led_on);
-    TimerInit(&t2, led_off);
-
-    TimerSetValue(&t1, 5000000);
-    TimerSetValue(&t2, 10000000);
-
-    TimerStart(&t1);
-    TimerStart(&t2);
+    //SX1276SetRx(RX_TIMEOUT_VALUE);
+    Buffer[0] = 1;
 
     while(1);
 
     return 0;
+}
+
+void boardInit(void) {
+    cpuInit();
+
+    /* LED settings */
+    LED.pinIndex = BOARD_LED_pin;
+    LED.portIndex = BOARD_LED_port;
+    GpioInit(&LED, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0);
+
+    /* Button settings */
+    BUTTON.pinIndex = BOARD_BUTTON_pin;
+    BUTTON.portIndex = BOARD_BUTTON_port;
+    GpioInit(&BUTTON, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0);
+    GpioSetInterrupt(&BUTTON, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, send_on_off);
+
+    /* LoRa SPI settings */
+    SX1276.Spi.slave_on = 0; // Master
+    SX1276.Spi.Spi = (uint32_t *)LORA_SPI;
+    SX1276.Spi.Mosi.pinIndex  = LORA_SPI_MOSI_pin;
+    SX1276.Spi.Mosi.portIndex = LORA_SPI_MOSI_port;
+    SX1276.Spi.Miso.pinIndex  = LORA_SPI_MISO_pin;
+    SX1276.Spi.Miso.portIndex = LORA_SPI_MISO_port;
+    SX1276.Spi.Sclk.pinIndex  = LORA_SPI_SCLK_pin;
+    SX1276.Spi.Sclk.portIndex = LORA_SPI_SCLK_port;
+    SX1276.Spi.Nss.pinIndex   = LORA_SPI_NSS_pin;
+    SX1276.Spi.Nss.portIndex  = LORA_SPI_NSS_port;
+    SX1276.Spi.bits = SPI_8_BIT;
+    SX1276.Spi.cpha = 0;
+    SX1276.Spi.cpol = 0;
+    SX1276.Spi.f_pclk = SPI_F_PCLK_32;
+    SX1276.Spi.msb_lsb = SPI_MSB;
+
+    SpiInit(&(SX1276.Spi));
+
+    /* Set other LoRa pins */
+    SX1276.Reset.pinIndex  = LORA_NRESET_pin;
+    SX1276.Reset.portIndex = LORA_NRESET_port;
+    SX1276.DIO0.pinIndex   = LORA_DIO0_pin;
+    SX1276.DIO0.portIndex  = LORA_DIO0_port;
+    SX1276.DIO1.pinIndex   = LORA_DIO1_pin;
+    SX1276.DIO1.portIndex  = LORA_DIO1_port;
+    SX1276.DIO2.pinIndex   = LORA_DIO2_pin;
+    SX1276.DIO2.portIndex  = LORA_DIO2_port;
+
+    SX1276.AntSwitchLf.pinIndex  = LORA_ANT_SWITCH_LF_pin;
+    SX1276.AntSwitchLf.portIndex = LORA_ANT_SWITCH_LF_port;
+    SX1276.AntSwitchHf.pinIndex  = LORA_ANT_SWITCH_HF_pin;
+    SX1276.AntSwitchHf.portIndex = LORA_ANT_SWITCH_HF_port;
+
+    SX1276IoInit();
+
+    NVIC_SetPriority(TIM6_IRQn, 8);
+    //NVIC_EnableIRQ(TIM6_IRQn);
+    RCC->APB1ENR |= RCC_APB1ENR_TIM6EN;
+    TIM6->PSC = 0x7CFF;
+    TIM6->ARR = 0x03E7;
+    TIM6->DIER |= TIM_DIER_UIE;
+    TIM6->CR1 |= TIM_CR1_CEN;
+
+    TimerHwInit();
+}
+
+void TIM6_IRQHandler(void)
+{
+    TIM6->SR &= ~TIM_SR_UIF;
+
+    SX1276Send(Buffer, BufferSize);
+}
+
+volatile uint8_t send_enable = false;
+void send_on_off(void) {
+    if(!send_enable) {
+        GpioWrite(&LED, 1);
+        NVIC_EnableIRQ(TIM6_IRQn);
+    } else {
+        GpioWrite(&LED, 0);
+        NVIC_DisableIRQ(TIM6_IRQn);
+    }
+
+    send_enable = !send_enable;
+}
+
+void OnTxDone(void)
+{
+    SX1276SetSleep();
+}
+
+void OnRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr)
+{
+    SX1276SetSleep();
+}
+
+void OnTxTimeout(void)
+{
+    SX1276SetSleep();
+}
+
+void OnRxTimeout(void)
+{
+    SX1276SetSleep();
+}
+
+void OnRxError(void)
+{
+    SX1276SetSleep();
 }
