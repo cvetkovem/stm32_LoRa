@@ -19,8 +19,8 @@
 #define LORA_CRC_ON                     false
 
 #define RX_TIMEOUT_VALUE                1000000   // uS
-#define TX_TIMEOUT_VALUE                300000   // uS
-#define BUFFER_SIZE                     1        // Define the payload size here
+#define TX_TIMEOUT_VALUE                3000000   // uS
+#define BUFFER_SIZE                     64        // Define the payload size here
 
 uint16_t BufferSize = BUFFER_SIZE;
 uint8_t Buffer[BUFFER_SIZE];
@@ -56,6 +56,28 @@ int main()
     RadioEvents.RxTimeout = OnRxTimeout;
     RadioEvents.RxError = OnRxError;
 
+//////////////////
+    GpioInit(&(SX1276.AntSwitchLf), PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0);
+    GpioInit(&(SX1276.AntSwitchHf), PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0);
+
+    SX1276Reset();
+
+    SX1276Write(0x01,0x00);		// sleep mode, high frequency
+    cpuDelay_ms(10);
+
+    SX1276Write(0x4B,0x09);		// external crystal
+    SX1276Write(0x01,0x80);
+
+    while(1) {
+        Buffer[0] = 1;
+
+        Buffer[0] = SX1276Read(0x42);
+
+        cpuDelay_ms(100);
+    }
+//////////////////
+
+
     SX1276Init(&RadioEvents);
     SX1276SetChannel(RF_FREQUENCY);
 
@@ -72,6 +94,9 @@ int main()
 */
     //SX1276SetRx(RX_TIMEOUT_VALUE);
     Buffer[0] = 1;
+
+    Buffer[0] = SX1276Read(0x42);
+    Buffer[0] = SX1276Read(0x06);
 
     while(1) {
         cpuDelay_ms(5000);
@@ -109,7 +134,7 @@ void boardInit(void) {
     SX1276.Spi.bits = SPI_8_BIT;
     SX1276.Spi.cpha = 0;
     SX1276.Spi.cpol = 0;
-    SX1276.Spi.f_pclk = SPI_F_PCLK_32;
+    SX1276.Spi.f_pclk = SPI_F_PCLK_4;
     SX1276.Spi.msb_lsb = SPI_MSB;
 
     SpiInit(&(SX1276.Spi));
@@ -164,25 +189,30 @@ void send_on_off(void) {
 
 void OnTxDone(void)
 {
-    SX1276SetSleep();
+    __NOP();
+    //SX1276SetSleep();
 }
 
 void OnRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr)
 {
-    SX1276SetSleep();
+    __NOP();
+    //SX1276SetSleep();
 }
 
 void OnTxTimeout(void)
 {
-    SX1276SetSleep();
+    __NOP();
+    //SX1276SetSleep();
 }
 
 void OnRxTimeout(void)
 {
-    SX1276SetSleep();
+    __NOP();
+    //SX1276SetSleep();
 }
 
 void OnRxError(void)
 {
-    SX1276SetSleep();
+    __NOP();
+    //SX1276SetSleep();
 }

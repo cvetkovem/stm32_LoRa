@@ -58,6 +58,8 @@ void SpiInit(Spi_t *obj)
         *((uint32_t *)(gpio_reg + 32)) = 0x01;
         /* SPI->CR2 SSOE */
         *((uint32_t *)(gpio_reg + 32*0x04 + 8)) = 0x01;
+
+        GpioWrite(&obj->Nss, 1);
     }
 
     /* SPI Enable */
@@ -70,13 +72,13 @@ void SpiDeInit(Spi_t *obj)
     register uint32_t gpio_reg;
 
     /* Disable SPI */
-    if((SPI_TypeDef *)(obj->Spi) == (SPI_TypeDef *)SPI1_BASE) {
+    if((SPI_TypeDef *)(obj->Spi) == SPI1) {
         /* bit banding address for SPI1 */
         gpio_reg = 0x42000000+(32*0x13000);
         *((uint32_t *)(gpio_reg + 24)) = 0x00;
         /* RCC->APB2ENR &= ~RCC_APB2ENR_SPI1EN; */
         *((uint32_t *)(0x42000000+(32*0x23820)+4*12)) = 0x00;
-    } else if((SPI_TypeDef *)(obj->Spi) == (SPI_TypeDef *)SPI2_BASE){
+    } else if((SPI_TypeDef *)(obj->Spi) == SPI2){
         /* bit banding address for SPI2 */
         gpio_reg = 0x42000000+(32*0x3800);
         *((uint32_t *)(gpio_reg + 24)) = 0x00;
@@ -98,11 +100,18 @@ void SpiDeInit(Spi_t *obj)
 
 uint16_t SpiInOut(Spi_t *obj, uint16_t outData)
 {
+/*
     while(!(((SPI_TypeDef *)(obj->Spi))->SR & SPI_SR_TXE));
     ((SPI_TypeDef *)(obj->Spi))->DR = outData;
 
     while(!(((SPI_TypeDef *)(obj->Spi))->SR & SPI_SR_RXNE));
     return ((SPI_TypeDef *)(obj->Spi))->DR;
+*/
+    while(!(SPI2->SR & SPI_SR_TXE));
+    SPI2->DR = outData;
+
+    while(!(SPI2->SR & SPI_SR_RXNE));
+    return SPI2->DR;
 }
 
 
