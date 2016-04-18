@@ -60,7 +60,6 @@
 			<Add option="-mfloat-abi=soft" />
 			<Add option="-std=c11" />
 			<Add option="-Wall" />
-			<Add option="-O2" />
 			<Add option="-fno-strict-aliasing" />
 			<Add symbol="STM32L152RB" />
 			<Add symbol="STM32L1XX_MD" />

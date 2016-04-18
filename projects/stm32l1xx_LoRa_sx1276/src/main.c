@@ -3,7 +3,7 @@
 #define RF_FREQUENCY                    868000000 // Hz
 #define TX_OUTPUT_POWER                 14        // dBm
 
-#define LORA_BANDWIDTH                  0         // [0: 125 kHz,
+#define LORA_BANDWIDTH                  1         // [0: 125 kHz,
                                                   //  1: 250 kHz,
                                                   //  2: 500 kHz,
                                                   //  3: Reserved]
@@ -16,10 +16,10 @@
 #define LORA_SYMBOL_TIMEOUT             5         // Symbols
 #define LORA_FIX_LENGTH_PAYLOAD_ON      false
 #define LORA_IQ_INVERSION_ON            false
-#define LORA_CRC_ON                     true
+#define LORA_CRC_ON                     false
 
 #define RX_TIMEOUT_VALUE                1000000   // uS
-#define TX_TIMEOUT_VALUE                3000000   // uS
+#define TX_TIMEOUT_VALUE                300000   // uS
 #define BUFFER_SIZE                     1        // Define the payload size here
 
 uint16_t BufferSize = BUFFER_SIZE;
@@ -73,7 +73,10 @@ int main()
     //SX1276SetRx(RX_TIMEOUT_VALUE);
     Buffer[0] = 1;
 
-    while(1);
+    while(1) {
+        cpuDelay_ms(5000);
+        SX1276Send(Buffer, BufferSize);
+    }
 
     return 0;
 }
