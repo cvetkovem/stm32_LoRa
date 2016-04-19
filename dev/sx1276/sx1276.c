@@ -1101,8 +1101,8 @@ void SX1276Reset(void)
     cpuDelay_ms(10);
 
     // Configure RESET as input
-    GpioInit(&SX1276.Reset, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1);
-    //GpioInit(&SX1276.Reset, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1);
+    //GpioInit(&SX1276.Reset, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1);
+    GpioInit(&SX1276.Reset, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1);
 
     // Wait 6 ms
     cpuDelay_ms(20);

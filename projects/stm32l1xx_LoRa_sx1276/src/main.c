@@ -19,7 +19,7 @@
 #define LORA_CRC_ON                     false
 
 #define RX_TIMEOUT_VALUE                1000000   // uS
-#define TX_TIMEOUT_VALUE                3000000   // uS
+#define TX_TIMEOUT_VALUE                300000    // uS
 #define BUFFER_SIZE                     64        // Define the payload size here
 
 uint16_t BufferSize = BUFFER_SIZE;
@@ -39,44 +39,33 @@ void OnRxTimeout(void);
 void OnRxError(void);
 
 void boardInit(void);
+void radio_init(void);
 void send_on_off(void);
 void TIM6_IRQHandler(void);
 
 Gpio_t LED, BUTTON;
 extern SX1276_t SX1276;
 
+
 int main()
 {
     boardInit();
+    radio_init();
 
+    while(1) {
+        __WFI();
+    }
+
+    return 0;
+}
+
+void radio_init(void) {
     // Radio initialization
     RadioEvents.TxDone = OnTxDone;
     RadioEvents.RxDone = OnRxDone;
     RadioEvents.TxTimeout = OnTxTimeout;
     RadioEvents.RxTimeout = OnRxTimeout;
     RadioEvents.RxError = OnRxError;
-
-//////////////////
-    GpioInit(&(SX1276.AntSwitchLf), PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0);
-    GpioInit(&(SX1276.AntSwitchHf), PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0);
-
-    SX1276Reset();
-
-    SX1276Write(0x01,0x00);		// sleep mode, high frequency
-    cpuDelay_ms(10);
-
-    SX1276Write(0x4B,0x09);		// external crystal
-    SX1276Write(0x01,0x80);
-
-    while(1) {
-        Buffer[0] = 1;
-
-        Buffer[0] = SX1276Read(0x42);
-
-        cpuDelay_ms(100);
-    }
-//////////////////
-
 
     SX1276Init(&RadioEvents);
     SX1276SetChannel(RF_FREQUENCY);
@@ -93,17 +82,6 @@ int main()
                                    0, LORA_CRC_ON, 0, 0, LORA_IQ_INVERSION_ON, true);
 */
     //SX1276SetRx(RX_TIMEOUT_VALUE);
-    Buffer[0] = 1;
-
-    Buffer[0] = SX1276Read(0x42);
-    Buffer[0] = SX1276Read(0x06);
-
-    while(1) {
-        cpuDelay_ms(5000);
-        SX1276Send(Buffer, BufferSize);
-    }
-
-    return 0;
 }
 
 void boardInit(void) {
@@ -134,7 +112,7 @@ void boardInit(void) {
     SX1276.Spi.bits = SPI_8_BIT;
     SX1276.Spi.cpha = 0;
     SX1276.Spi.cpol = 0;
-    SX1276.Spi.f_pclk = SPI_F_PCLK_4;
+    SX1276.Spi.f_pclk = SPI_F_PCLK_128;
     SX1276.Spi.msb_lsb = SPI_MSB;
 
     SpiInit(&(SX1276.Spi));
@@ -149,6 +127,7 @@ void boardInit(void) {
     SX1276.DIO2.pinIndex   = LORA_DIO2_pin;
     SX1276.DIO2.portIndex  = LORA_DIO2_port;
 
+    /* Set TXEN, RXEN pins */
     SX1276.AntSwitchLf.pinIndex  = LORA_ANT_SWITCH_LF_pin;
     SX1276.AntSwitchLf.portIndex = LORA_ANT_SWITCH_LF_port;
     SX1276.AntSwitchHf.pinIndex  = LORA_ANT_SWITCH_HF_pin;
@@ -190,7 +169,7 @@ void send_on_off(void) {
 void OnTxDone(void)
 {
     __NOP();
-    //SX1276SetSleep();
+    SX1276SetSleep();
 }
 
 void OnRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr)
@@ -202,7 +181,7 @@ void OnRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr)
 void OnTxTimeout(void)
 {
     __NOP();
-    //SX1276SetSleep();
+    SX1276SetSleep();
 }
 
 void OnRxTimeout(void)
