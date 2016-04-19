@@ -3,7 +3,7 @@
 #define RF_FREQUENCY                    868000000 // Hz
 #define TX_OUTPUT_POWER                 14        // dBm
 
-#define LORA_BANDWIDTH                  1         // [0: 125 kHz,
+#define LORA_BANDWIDTH                  0         // [0: 125 kHz,
                                                   //  1: 250 kHz,
                                                   //  2: 500 kHz,
                                                   //  3: Reserved]
@@ -16,7 +16,7 @@
 #define LORA_SYMBOL_TIMEOUT             5         // Symbols
 #define LORA_FIX_LENGTH_PAYLOAD_ON      false
 #define LORA_IQ_INVERSION_ON            false
-#define LORA_CRC_ON                     false
+#define LORA_CRC_ON                     true
 
 #define RX_TIMEOUT_VALUE                1000000   // uS
 #define TX_TIMEOUT_VALUE                300000    // uS
@@ -41,14 +41,24 @@ void OnRxError(void);
 void boardInit(void);
 void radio_init(void);
 void send_on_off(void);
+void led_green_off(void);
 void TIM6_IRQHandler(void);
 
-Gpio_t LED, BUTTON;
+Gpio_t LED_BLUE, LED_GREEN, BUTTON;
 extern SX1276_t SX1276;
 
+TimerEvent_t led_off_timer;
 
 int main()
 {
+    uint8_t i;
+
+    for(i = 0; i < BufferSize; i++) {
+        Buffer[i] = i;
+    }
+
+    TimerInit(&led_off_timer, led_green_off);
+
     boardInit();
     radio_init();
 
@@ -87,10 +97,13 @@ void radio_init(void) {
 void boardInit(void) {
     cpuInit();
 
-    /* LED settings */
-    LED.pinIndex = BOARD_LED_pin;
-    LED.portIndex = BOARD_LED_port;
-    GpioInit(&LED, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0);
+    /* LEDs settings */
+    LED_BLUE.pinIndex = BOARD_LED_BLUE_pin;
+    LED_BLUE.portIndex = BOARD_LED_BLUE_port;
+    GpioInit(&LED_BLUE, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0);
+    LED_GREEN.pinIndex = BOARD_LED_GREEN_pin;
+    LED_GREEN.portIndex = BOARD_LED_GREEN_port;
+    GpioInit(&LED_GREEN, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0);
 
     /* Button settings */
     BUTTON.pinIndex = BOARD_BUTTON_pin;
@@ -156,19 +169,30 @@ void TIM6_IRQHandler(void)
 volatile uint8_t send_enable = false;
 void send_on_off(void) {
     if(!send_enable) {
-        GpioWrite(&LED, 1);
+        GpioWrite(&LED_BLUE, 1);
         NVIC_EnableIRQ(TIM6_IRQn);
     } else {
-        GpioWrite(&LED, 0);
+        GpioWrite(&LED_BLUE, 0);
         NVIC_DisableIRQ(TIM6_IRQn);
     }
 
     send_enable = !send_enable;
 }
 
+void led_green_off(void)
+{
+    GpioWrite(&LED_GREEN, 0);
+}
+
 void OnTxDone(void)
 {
     __NOP();
+
+    GpioWrite(&LED_GREEN, 1);
+
+    TimerSetValue(&led_off_timer, 125000);
+    TimerStart(&led_off_timer);
+
     SX1276SetSleep();
 }
 

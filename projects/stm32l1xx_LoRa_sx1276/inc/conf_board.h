@@ -48,9 +48,11 @@
 #define LORA_NRESET_port            0
 #define LORA_NRESET_pin             3
 
-/** Board LED pin **/
-#define BOARD_LED_port              1 //1 - PORTB
-#define BOARD_LED_pin               6
+/** Board LEDs pin **/
+#define BOARD_LED_BLUE_port         1 //1 - PORTB
+#define BOARD_LED_BLUE_pin          6
+#define BOARD_LED_GREEN_port        1 //1 - PORTB
+#define BOARD_LED_GREEN_pin         7
 
 /** Board BUTTON pin **/
 #define BOARD_BUTTON_port           0 //0 - PORTA
