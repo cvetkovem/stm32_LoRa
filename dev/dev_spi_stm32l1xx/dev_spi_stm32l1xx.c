@@ -12,14 +12,18 @@ void SpiInit(Spi_t *obj)
     GpioInit(&obj->Mosi, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, 0);
     GpioInit(&obj->Miso, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, 0);
     GpioInit(&obj->Sclk, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, 0);
-    //GpioInit(&obj->Nss,  PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_UP,   0);
-    GpioInit(&obj->Nss,  PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1);
 
     /* Gpio alternate function settings */
     ((GPIO_TypeDef *)(AHBPERIPH_BASE + 0x400*(obj->Miso.portIndex)))->AFR[(obj->Miso.pinIndex < 8)?0:1] |= 0x05 << 4*(obj->Miso.pinIndex - ((obj->Miso.pinIndex < 8)?0:8));
     ((GPIO_TypeDef *)(AHBPERIPH_BASE + 0x400*(obj->Mosi.portIndex)))->AFR[(obj->Mosi.pinIndex < 8)?0:1] |= 0x05 << 4*(obj->Mosi.pinIndex - ((obj->Mosi.pinIndex < 8)?0:8));
     ((GPIO_TypeDef *)(AHBPERIPH_BASE + 0x400*(obj->Sclk.portIndex)))->AFR[(obj->Sclk.pinIndex < 8)?0:1] |= 0x05 << 4*(obj->Sclk.pinIndex - ((obj->Sclk.pinIndex < 8)?0:8));
-    //((GPIO_TypeDef *)(AHBPERIPH_BASE + 0x400*(obj->Nss.portIndex )))->AFR[(obj->Nss.pinIndex  < 8)?0:1] |= 0x05 << 4*(obj->Nss.pinIndex  - ((obj->Nss.pinIndex  < 8)?0:8));
+
+    if(obj->slave_on) {
+        GpioInit(&obj->Nss,  PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_UP, 0);
+        ((GPIO_TypeDef *)(AHBPERIPH_BASE + 0x400*(obj->Nss.portIndex )))->AFR[(obj->Nss.pinIndex  < 8)?0:1] |= 0x05 << 4*(obj->Nss.pinIndex  - ((obj->Nss.pinIndex  < 8)?0:8));
+    } else {
+        GpioInit(&obj->Nss,  PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1);
+    }
 
     /* Enable bus clock */
     if(spi == SPI1) {

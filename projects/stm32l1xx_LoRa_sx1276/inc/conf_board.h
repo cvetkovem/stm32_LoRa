@@ -38,11 +38,11 @@
 
 /** LoRa TXEN, RXEN pins **/
 #define LORA_ANT_SWITCH_LF_port     0
-#define LORA_ANT_SWITCH_LF_pin      5
+#define LORA_ANT_SWITCH_LF_pin      5  //RXEN
 // TX: LF=0, HF=1
 // RX: LF=1, HF=0
 #define LORA_ANT_SWITCH_HF_port     0
-#define LORA_ANT_SWITCH_HF_pin      4
+#define LORA_ANT_SWITCH_HF_pin      4  //TXEN
 
 /** LoRa NRESET pin **/
 #define LORA_NRESET_port            0
