@@ -86,6 +86,14 @@
 		<Unit filename="..\..\dev\dev_cpu.h">
 			<Option virtualFolder="dev\" />
 		</Unit>
+		<Unit filename="..\..\dev\dev_cpu_stm32f4xx\dev_cpu_stm32f4xx.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="dev\dev_cpu_stm32f4xx\" />
+		</Unit>
+		<Unit filename="..\..\dev\dev_gpio_stm32f4xx\dev_gpio_stm32f4xx.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="dev\dev_gpio_stm32f4xx\" />
+		</Unit>
 		<Unit filename="..\..\dev\dev_hw_timer.h">
 			<Option virtualFolder="dev\" />
 		</Unit>
@@ -163,8 +171,8 @@
 		<Extensions>
 			<code_completion />
 			<debugger>
-				<target_debugging_settings target="Debug" active_interface="ST-link">
-					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBITZ}\share\contrib" executable="STLinkGDB.exe" description="" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
+				<target_debugging_settings target="Release" active_interface="ST-link">
+					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBITZ}\share\contrib" executable="STLinkGDB.exe" description=".\STM32F40x.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
 						<family_options family_id="STMicroelectronics">
 							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
 							<option opt_id="ID_VECTOR_START" opt_value="0x08000000" />
@@ -180,8 +188,8 @@
 						</family_options>
 					</debug_interface>
 				</target_debugging_settings>
-				<target_debugging_settings target="Release" active_interface="ST-link">
-					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBITZ}\share\contrib" executable="STLinkGDB.exe" description="" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
+				<target_debugging_settings target="Debug" active_interface="ST-link">
+					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBITZ}\share\contrib" executable="STLinkGDB.exe" description=".\STM32F40x.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
 						<family_options family_id="STMicroelectronics">
 							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
 							<option opt_id="ID_VECTOR_START" opt_value="0x08000000" />

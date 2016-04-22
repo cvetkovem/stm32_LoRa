@@ -19,7 +19,7 @@ void GpioInit(Gpio_t *obj, PinModes mode,  PinConfigs config, PinTypes type, uin
     /* MODER offset 0x00 */
 	gpio_reg = 0x42400000 + (32*(0x400*((uint32_t)obj->portIndex))) + (((uint32_t)(obj->pinIndex))*2*4);
     *((uint32_t *)(gpio_reg)) = mode & 0x01;
-    *((uint32_t *)(gpio_reg + 4 )) = (mode >> 1) & 0x01;
+    *((uint32_t *)(gpio_reg + 4)) = (mode >> 1) & 0x01;
 
     /* OTYPER offset 0x04 */
     gpio_reg = 0x42400000 + (32*(0x400*((uint32_t)obj->portIndex))) + (32*0x04) + (((uint32_t)(obj->pinIndex))*4);
@@ -28,23 +28,24 @@ void GpioInit(Gpio_t *obj, PinModes mode,  PinConfigs config, PinTypes type, uin
 	/* OSPEEDR offset 0x08 */ /* 11 - High speed */
 	gpio_reg = 0x42400000 + (32*(0x400*((uint32_t)obj->portIndex))) + (32*0x08) + (((uint32_t)(obj->pinIndex))*2*4);
     *((uint32_t *)(gpio_reg)) = 0x01;
-    *((uint32_t *)(gpio_reg + 4 )) = 0x01;
+    *((uint32_t *)(gpio_reg + 4)) = 0x01;
 
     /* PUPDR offset 0x0C */
     gpio_reg = 0x42400000 + (32*(0x400*((uint32_t)obj->portIndex))) + (32*0x0C) + (((uint32_t)(obj->pinIndex))*2*4);
     *((uint32_t *)(gpio_reg)) = type & 0x01;
-    *((uint32_t *)(gpio_reg + 4 )) = (type >> 1) & 0x01;
+    *((uint32_t *)(gpio_reg + 4)) = (type >> 1) & 0x01;
 
 	/* mark pin as configured */
 	gpio_ports[obj->portIndex] |= (uint16_t)(1 << (obj->pinIndex));
 
-    // Sets initial output value
+    /* Sets initial output value */
     if(mode == PIN_OUTPUT) {
         GpioWrite(obj, value);
     }
 }
 
-void GpioDeInit(Gpio_t *obj) {
+void GpioDeInit(Gpio_t *obj)
+{
     register uint32_t gpio_reg;
 
     GpioRemoveInterrupt(obj);
@@ -52,7 +53,7 @@ void GpioDeInit(Gpio_t *obj) {
     /* MODER offset 0x00 */
 	gpio_reg = 0x42400000 + (32*(0x400*((uint32_t)obj->portIndex))) + (((uint32_t)(obj->pinIndex))*2*4);
     *((uint32_t *)(gpio_reg)) = 0x00;
-    *((uint32_t *)(gpio_reg + 4 )) = 0x00;
+    *((uint32_t *)(gpio_reg + 4)) = 0x00;
 
     /* OTYPER offset 0x04 */
     gpio_reg = 0x42400000 + (32*(0x400*((uint32_t)obj->portIndex))) + (32*0x04) + (((uint32_t)(obj->pinIndex))*4);
@@ -61,12 +62,12 @@ void GpioDeInit(Gpio_t *obj) {
 	/* OSPEEDR offset 0x08 */ /* 00 - Very low speed */
 	gpio_reg = 0x42400000 + (32*(0x400*((uint32_t)obj->portIndex))) + (32*0x08) + (((uint32_t)(obj->pinIndex))*2*4);
     *((uint32_t *)(gpio_reg)) = 0x00;
-    *((uint32_t *)(gpio_reg + 4 )) = 0x00;
+    *((uint32_t *)(gpio_reg + 4)) = 0x00;
 
     /* PUPDR offset 0x0C */
     gpio_reg = 0x42400000 + (32*(0x400*((uint32_t)obj->portIndex))) + (32*0x0C) + (((uint32_t)(obj->pinIndex))*2*4);
     *((uint32_t *)(gpio_reg)) = 0x00;
-    *((uint32_t *)(gpio_reg + 4 )) = 0x00;
+    *((uint32_t *)(gpio_reg + 4)) = 0x00;
 
     gpio_reg = (AHBPERIPH_BASE + 0x400*(obj->portIndex));
     ((GPIO_TypeDef *)gpio_reg)->BSRRH = 1 << (obj->pinIndex);
@@ -126,7 +127,7 @@ void GpioSetInterrupt(Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriority, 
     /* EXTI->FTSR */
     *((uint32_t *)(0x42208100 + (32*0x04) + 4*(obj->pinIndex))) = (irqMode >> 1) & 0x01;
 
-    if (obj->pinIndex < 5) {
+    if(obj->pinIndex < 5) {
         NVIC_EnableIRQ(EXTI0_IRQn + obj->pinIndex);
         NVIC_SetPriority(EXTI0_IRQn + obj->pinIndex, irqPriority);
     } else if(obj->pinIndex < 10) {
