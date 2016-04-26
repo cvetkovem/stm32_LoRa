@@ -101,6 +101,10 @@
 			<Option compilerVar="CC" />
 			<Option virtualFolder="dev\dev_hw_timer_stm32f4xx\" />
 		</Unit>
+		<Unit filename="..\..\dev\dev_spi_stm32f4xx\dev_spi_stm32f4xx.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="dev\dev_spi_stm32f4xx\" />
+		</Unit>
 		<Unit filename="..\..\dev\dev_sw_timer\dev_sw_timer.c">
 			<Option compilerVar="CC" />
 			<Option virtualFolder="dev\dev_sw_timer\" />
