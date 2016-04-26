@@ -35,6 +35,7 @@ int main(void)
     //GpioDeInit(&LED_GREEN);
 
     uint8_t i = 0;
+
     uint8_t j;
 
     while(1)

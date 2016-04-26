@@ -77,7 +77,6 @@ __INLINE static void cpuTimerInit_ms()
 {
     /* RCC->APB1ENR |= RCC_APB1ENR_TIM3EN; */
     *((uint32_t *)(0x42000000 + 32*0x23840 + 4)) = 0x01;
-
     /* 500 KHz */
     TIM3->PSC = 0xA40F;
     TIM3->EGR |= TIM_EGR_UG;
@@ -88,7 +87,6 @@ __INLINE static void cpuTimerInit_us()
 {
     /* RCC->APB1ENR |= RCC_APB1ENR_TIM3EN; */
     *((uint32_t *)(0x42000000 + 32*0x23840 + 4)) = 0x01;
-
     /* 1 MHz */
     TIM3->PSC = 0x0053;
     TIM3->EGR |= TIM_EGR_UG;
