@@ -35,11 +35,15 @@ int main(void)
     //GpioDeInit(&LED_GREEN);
 
     uint8_t i = 0;
+    uint8_t j;
 
     while(1)
     {
         i = !i;
         GpioWrite(&LED_GREEN, i);
-        cpuDelay_ms(5000);
+        for (j = 0; j < 10; j++) {
+            cpuDelay_us(50000);
+            cpuDelay_us(50000);
+        }
     }
 }

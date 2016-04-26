@@ -8,6 +8,25 @@
 
 void cpuInit()
 {
+    /* Reset the RCC clock configuration to the default reset state ------------*/
+    /* Set HSION bit */
+    RCC->CR |= (uint32_t)0x00000001;
+
+    /* Reset CFGR register */
+    RCC->CFGR = 0x00000000;
+
+    /* Reset HSEON, CSSON and PLLON bits */
+    RCC->CR &= (uint32_t)0xFEF6FFFF;
+
+    /* Reset PLLCFGR register */
+    RCC->PLLCFGR = 0x24003010;
+
+    /* Reset HSEBYP bit */
+    RCC->CR &= (uint32_t)0xFFFBFFFF;
+
+    /* Disable all interrupts */
+    RCC->CIR = 0x00000000;
+
     /* Enable HSE */
 	RCC->CR |= ((uint32_t)RCC_CR_HSEON);
 
@@ -15,11 +34,12 @@ void cpuInit()
 	while ((RCC->CR & RCC_CR_HSERDY) == 0);
 
     /* Select HSE */
-    RCC->CFGR |= RCC_CFGR_SW_HSE;
+    //RCC->CFGR |= RCC_CFGR_SW_HSE;
 
 	/* Select regulator voltage output Scale 1 mode, System frequency up to 168 MHz */
 	RCC->APB1ENR |= RCC_APB1ENR_PWREN;
-	PWR->CR |= PWR_CR_PMODE;
+	PWR->CR |= PWR_CR_VOS;
+	//PWR->CR |= PWR_CR_PMODE;
 
 	/* HCLK = SYSCLK / 1*/
 	RCC->CFGR |= RCC_CFGR_HPRE_DIV1;
@@ -58,7 +78,8 @@ __INLINE static void cpuTimerInit_ms()
     /* RCC->APB1ENR |= RCC_APB1ENR_TIM3EN; */
     *((uint32_t *)(0x42000000 + 32*0x23840 + 4)) = 0x01;
 
-    TIM3->PSC = 0xA40F; /* TODO */
+    /* 500 KHz */
+    TIM3->PSC = 0xA40F;
     TIM3->EGR |= TIM_EGR_UG;
     TIM3->CR1 |= TIM_CR1_CEN;
 }
@@ -68,7 +89,8 @@ __INLINE static void cpuTimerInit_us()
     /* RCC->APB1ENR |= RCC_APB1ENR_TIM3EN; */
     *((uint32_t *)(0x42000000 + 32*0x23840 + 4)) = 0x01;
 
-    TIM3->PSC = 0x0029; /* TODO */
+    /* 1 MHz */
+    TIM3->PSC = 0x0053;
     TIM3->EGR |= TIM_EGR_UG;
     TIM3->CR1 |= TIM_CR1_CEN;
 }
@@ -85,7 +107,7 @@ void cpuDelay_ms(uint32_t m_sec)
     cpuTimerInit_ms();
 
 	volatile uint32_t start = TIM3->CNT;
-	while((TIM3->CNT-start) <= m_sec);
+	while((TIM3->CNT-start) <= m_sec * 2);
 
     cpuStopTimer();
 }
