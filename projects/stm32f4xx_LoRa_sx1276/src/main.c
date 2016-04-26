@@ -2,11 +2,11 @@
 
 Gpio_t LED_BLUE, LED_GREEN, BUTTON;
 
-uint8_t tmp = 1;
+uint8_t tmp = 0;
 void send_on_off(void)
 {
     tmp = !tmp;
-    GpioWrite(&LED_BLUE, tmp);
+    GpioWrite(&LED_GREEN, tmp);
 }
 
 int main(void)
@@ -30,7 +30,15 @@ int main(void)
     //GpioRemoveInterrupt(&BUTTON);
 
     GpioWrite(&LED_BLUE, 1);
-    GpioWrite(&LED_GREEN, 1);
+    GpioWrite(&LED_GREEN, 0);
+
+
+    TimerHwInit();
+
+    TimerEvent_t tim;
+    TimerInit(&tim, send_on_off);
+    TimerSetValue(&tim, 5000000);
+    TimerStart(&tim);
 
     //GpioDeInit(&LED_GREEN);
 
@@ -40,11 +48,13 @@ int main(void)
 
     while(1)
     {
+/*
         i = !i;
         GpioWrite(&LED_GREEN, i);
         for (j = 0; j < 10; j++) {
             cpuDelay_us(50000);
             cpuDelay_us(50000);
         }
+*/
     }
 }

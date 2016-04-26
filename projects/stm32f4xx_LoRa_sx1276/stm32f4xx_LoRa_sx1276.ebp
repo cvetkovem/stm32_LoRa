@@ -97,6 +97,10 @@
 		<Unit filename="..\..\dev\dev_hw_timer.h">
 			<Option virtualFolder="dev\" />
 		</Unit>
+		<Unit filename="..\..\dev\dev_hw_timer_stm32f4xx\dev_hw_timer_stm32f4xx.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="dev\dev_hw_timer_stm32f4xx\" />
+		</Unit>
 		<Unit filename="..\..\dev\dev_sw_timer\dev_sw_timer.c">
 			<Option compilerVar="CC" />
 			<Option virtualFolder="dev\dev_sw_timer\" />
@@ -171,7 +175,7 @@
 		<Extensions>
 			<code_completion />
 			<debugger>
-				<target_debugging_settings target="Release" active_interface="ST-link">
+				<target_debugging_settings target="Debug" active_interface="ST-link">
 					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBITZ}\share\contrib" executable="STLinkGDB.exe" description=".\STM32F40x.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
 						<family_options family_id="STMicroelectronics">
 							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
@@ -188,7 +192,7 @@
 						</family_options>
 					</debug_interface>
 				</target_debugging_settings>
-				<target_debugging_settings target="Debug" active_interface="ST-link">
+				<target_debugging_settings target="Release" active_interface="ST-link">
 					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBITZ}\share\contrib" executable="STLinkGDB.exe" description=".\STM32F40x.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
 						<family_options family_id="STMicroelectronics">
 							<option opt_id="ID_JTAG_SWD" opt_value="swd" />

@@ -1,4 +1,4 @@
-#include <stm32l1xx.h>
+#include <stm32f4xx.h>
 #include "dev_hw_timer.h"
 
 /* Hardware Time base in us */
@@ -17,7 +17,7 @@ void TimerHwInit(void)
 {
     /* TIM2 clock enable */
     /* RCC->APB1ENR |= RCC_APB1ENR_TIM2EN; */
-    *((uint32_t *)(0x42000000 + 32*0x23824)) = 0x01;
+    *((uint32_t *)(0x42000000 + 32*0x23840)) = 0x01;
 
     /* --------------------------NVIC Configuration -------------------------------*/
     /* Enable the TIM2 gloabal Interrupt */
@@ -28,7 +28,7 @@ void TimerHwInit(void)
 
     /* Time base configuration */
     TIM2->PSC = 0;
-    TIM2->ARR = 3199;
+    TIM2->ARR = 8399;
     TIM2->DIER |= TIM_DIER_UIE;
     TIM2->EGR |= TIM_EGR_UG;
     TIM2->SR &= ~TIM_SR_UIF;
@@ -43,7 +43,7 @@ void TimerHwDeInit(void)
     TIM2->CR1 &= ~TIM_CR1_CEN;
 
     /* RCC->APB1ENR &= ~RCC_APB1ENR_TIM2EN; */
-    *((uint32_t *)(0x42000000 + 32*0x23824)) = 0x00;
+    *((uint32_t *)(0x42000000 + 32*0x23840)) = 0x00;
 }
 
 uint32_t TimerHwGetMinimumTimeout(void)
