@@ -75,6 +75,7 @@
 		<Linker>
 			<Add option="-eb_lib=0" />
 			<Add option="-Wl,--gc-sections" />
+			<Add option="-lgcc" />
 		</Linker>
 		<Unit filename="..\..\core\stdlib_mcu32\stdlib.h">
 			<Option virtualFolder="core\stdlib_mcu32\" />
