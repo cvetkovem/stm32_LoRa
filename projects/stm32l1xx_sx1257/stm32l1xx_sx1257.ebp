@@ -3,13 +3,13 @@
 	<EmBitzVersion release="0.42" revision="0" />
 	<FileVersion major="1" minor="0" />
 	<Project>
-		<Option title="stm32l1xx_LoRa_sx1276" />
+		<Option title="stm32l1xx_sx1257" />
 		<Option pch_mode="2" />
 		<Option compiler="armgcc_eb" />
-		<Option virtualFolders="apps\;arch\;conf\;core\;dev\;arch\stm32l1xx\;arch\stm32l1xx\cmsis\;core\stdlib_mcu32\;dev\dev_cpu_stm32l1xx\;dev\dev_gpio_stm32l1xx\;dev\dev_spi_stm32l1xx\;dev\dev_sx1276\;dev\dev_hw_timer_stm32l1xx\;dev\dev_sw_timer\;" />
+		<Option virtualFolders="apps\;arch\;arch\stm32l1xx\;arch\stm32l1xx\cmsis\;conf\;core\;core\stdlib_mcu32\;dev\;dev\dev_cpu_stm32l1xx\;dev\dev_gpio_stm32l1xx\;dev\dev_spi_stm32l1xx\;dev\dev_sx1257\;" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin\Debug\stm32l1xx_LoRa_sx1276.elf" />
+				<Option output="bin\Debug\stm32l1xx_sx1257.elf" />
 				<Option object_output="obj\Debug\" />
 				<Option type="0" />
 				<Option create_hex="1" />
@@ -30,7 +30,7 @@
 				</Linker>
 			</Target>
 			<Target title="Release">
-				<Option output="bin\Release\stm32l1xx_LoRa_sx1276.elf" />
+				<Option output="bin\Release\stm32l1xx_sx1257.elf" />
 				<Option object_output="obj\Release\" />
 				<Option type="0" />
 				<Option create_hex="1" />
@@ -68,6 +68,7 @@
 			<Add directory="..\..\arch\stm32l1xx\cmsis" />
 			<Add directory="..\..\core\stdlib_mcu32" />
 			<Add directory="..\..\dev" />
+			<Add directory="..\..\dev\sx1257" />
 		</Compiler>
 		<Linker>
 			<Add option="-eb_lib=0" />
@@ -101,20 +102,9 @@
 			<Option compilerVar="CC" />
 			<Option virtualFolder="dev\dev_gpio_stm32l1xx\" />
 		</Unit>
-		<Unit filename="..\..\dev\dev_hw_timer.h">
-			<Option virtualFolder="dev\" />
-		</Unit>
-		<Unit filename="..\..\dev\dev_hw_timer_stm32l1xx\dev_hw_timer_stm32l1xx.c">
-			<Option compilerVar="CC" />
-			<Option virtualFolder="dev\dev_hw_timer_stm32l1xx\" />
-		</Unit>
 		<Unit filename="..\..\dev\dev_spi_stm32l1xx\dev_spi_stm32l1xx.c">
 			<Option compilerVar="CC" />
 			<Option virtualFolder="dev\dev_spi_stm32l1xx\" />
-		</Unit>
-		<Unit filename="..\..\dev\dev_sw_timer\dev_sw_timer.c">
-			<Option compilerVar="CC" />
-			<Option virtualFolder="dev\dev_sw_timer\" />
 		</Unit>
 		<Unit filename="..\..\dev\gpio.h">
 			<Option virtualFolder="dev\" />
@@ -122,21 +112,12 @@
 		<Unit filename="..\..\dev\spi.h">
 			<Option virtualFolder="dev\" />
 		</Unit>
-		<Unit filename="..\..\dev\sx1276\sx1276.c">
+		<Unit filename="..\..\dev\sx1257\sx1257.c">
 			<Option compilerVar="CC" />
-			<Option virtualFolder="dev\dev_sx1276\" />
+			<Option virtualFolder="dev\dev_sx1257\" />
 		</Unit>
-		<Unit filename="..\..\dev\sx1276\sx1276.h">
-			<Option virtualFolder="dev\dev_sx1276\" />
-		</Unit>
-		<Unit filename="..\..\dev\sx1276\sx1276Regs-Fsk.h">
-			<Option virtualFolder="dev\dev_sx1276\" />
-		</Unit>
-		<Unit filename="..\..\dev\sx1276\sx1276Regs-LoRa.h">
-			<Option virtualFolder="dev\dev_sx1276\" />
-		</Unit>
-		<Unit filename="..\..\dev\timer.h">
-			<Option virtualFolder="dev\" />
+		<Unit filename="..\..\dev\sx1257\sx1257.h">
+			<Option virtualFolder="dev\dev_sx1257\" />
 		</Unit>
 		<Unit filename="inc\conf_board.h">
 			<Option virtualFolder="conf\" />
@@ -169,8 +150,7 @@
 			<code_completion />
 			<debugger>
 				<target_debugging_settings target="Debug" active_interface="ST-link">
-					<debug_interface interface_id="Generic" ip_address="" ip_port="" path="" executable="" description="" dont_start_server="false" backoff_time="" options="0" reg_filter="0" active_family="" />
-					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBITZ}\share\contrib" executable="STLinkGDB.exe" description=".\stm32l1xx.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
+					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBITZ}\share\contrib" executable="STLinkGDB.exe" description="" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
 						<family_options family_id="STMicroelectronics">
 							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
 							<option opt_id="ID_VECTOR_START" opt_value="0x08000000" />
