@@ -1,0 +1,70 @@
+# depslib dependency file v1.0
+1461671729 source:d:\embitz\git\dev\dev_cpu_stm32l1xx\dev_cpu_stm32l1xx.c
+	"stm32l1xx.h"
+	"dev_cpu.h"
+
+1494833020 d:\embitz\git\projects\stm32l1xx_dac\inc\stm32l1xx.h
+	"core_cm3.h"
+	"system_stm32l1xx.h"
+	<stdint.h>
+	"stm32l1xx_conf.h"
+
+1461671729 d:\embitz\git\arch\stm32l1xx\cmsis\core_cm3.h
+	<stdint.h>
+	<core_cmInstr.h>
+	<core_cmFunc.h>
+
+1461671729 d:\embitz\git\arch\stm32l1xx\cmsis\core_cminstr.h
+	<cmsis_iar.h>
+	<cmsis_ccs.h>
+
+1461671729 d:\embitz\git\arch\stm32l1xx\cmsis\core_cmfunc.h
+	<cmsis_iar.h>
+	<cmsis_ccs.h>
+
+1494833020 d:\embitz\git\projects\stm32l1xx_dac\inc\system_stm32l1xx.h
+
+1461671729 d:\embitz\git\dev\dev_cpu.h
+
+1494851351 source:d:\embitz\git\dev\dev_dac_stm32l1xx\dev_dac_stm32l1xx.c
+	"stm32l1xx.h"
+	"dac.h"
+
+1494837030 d:\embitz\git\dev\dac.h
+
+1461671729 source:d:\embitz\git\dev\dev_gpio_stm32l1xx\dev_gpio_stm32l1xx.c
+	"stm32l1xx.h"
+	"gpio.h"
+
+1461671729 d:\embitz\git\dev\gpio.h
+
+1461673513 source:d:\embitz\git\dev\dev_hw_timer_stm32l1xx\dev_hw_timer_stm32l1xx.c
+	<stm32l1xx.h>
+	"dev_hw_timer.h"
+
+1461671729 d:\embitz\git\dev\dev_hw_timer.h
+
+1494833020 source:d:\embitz\git\projects\stm32l1xx_dac\src\startup_stm32l1xx_md.s
+
+1494833020 source:d:\embitz\git\projects\stm32l1xx_dac\src\system_stm32l1xx.c
+	"stm32l1xx.h"
+
+1461671729 source:d:\embitz\git\core\stdlib_mcu32\stdlib_mcu32.c
+	<stdlib.h>
+
+1461671729 d:\embitz\git\core\stdlib_mcu32\stdlib.h
+	<stddef.h>
+	<stdarg.h>
+	<stdint.h>
+
+1494849660 source:d:\embitz\git\projects\stm32l1xx_dac\src\main.c
+	"conf_board.h"
+
+1494835222 d:\embitz\git\projects\stm32l1xx_dac\inc\conf_board.h
+	<stdlib.h>
+	"stm32l1xx.h"
+	"dev_cpu.h"
+	"gpio.h"
+	"dev_hw_timer.h"
+	"dac.h"
+

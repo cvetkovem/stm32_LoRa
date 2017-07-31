@@ -26,9 +26,9 @@
 
 typedef enum
 {
-    SX1257_TX_DAC_GAIN_m9dB = 0,   // maximum gain - 9 dB
-    SX1257_TX_DAC_GAIN_m6dB,       // maximum gain - 6 dB
-    SX1257_TX_DAC_GAIN_m3dB,       // maximum gain - 3 dB (default)
+    SX1257_TX_DAC_GAIN_9dB = 0,   // maximum gain 9 dB
+    SX1257_TX_DAC_GAIN_6dB,       // maximum gain 6 dB
+    SX1257_TX_DAC_GAIN_3dB,       // maximum gain 3 dB (default)
     SX1257_TX_DAC_GAIN_0dB,        // maximum gain (0 dB full scale)
 }SX1257_TxDacGain_t;
 
@@ -43,12 +43,12 @@ typedef enum
 typedef enum
 {
     SX1257_RX_LNA_GAIN_NOT_USED_FIRST = 0,
-    SX1257_RX_LNA_GAIN_m0dB,               // highest gain power - 0 dB
-    SX1257_RX_LNA_GAIN_m6dB,               // highest gain power - 6 dB
-    SX1257_RX_LNA_GAIN_m12dB,              // highest gain power - 12 dB
-    SX1257_RX_LNA_GAIN_m24dB,              // highest gain power - 24 dB
-    SX1257_RX_LNA_GAIN_m36dB,              // highest gain power - 36 dB
-    SX1257_RX_LNA_GAIN_m48dB,              // highest gain power - 48 dB
+    SX1257_RX_LNA_GAIN_0dB,               // highest gain power 0 dB
+    SX1257_RX_LNA_GAIN_6dB,               // highest gain power 6 dB
+    SX1257_RX_LNA_GAIN_12dB,              // highest gain power 12 dB
+    SX1257_RX_LNA_GAIN_24dB,              // highest gain power 24 dB
+    SX1257_RX_LNA_GAIN_36dB,              // highest gain power 36 dB
+    SX1257_RX_LNA_GAIN_48dB,              // highest gain power 48 dB
     SX1257_RX_LNA_GAIN_NOT_USED_END,
 }SX1257_RxLnaGain_t;
 
@@ -140,6 +140,11 @@ void SX1257SetSleep(void);
 
 /* Sets the radio in standby mode */
 void SX1257SetStby(void);
+
+void SX1257SetLoopBack(uint8_t digital, uint8_t rf);
+
+uint8_t SX1257GetPllLockRx(void);
+uint8_t SX1257GetPllLockTx(void);
 
 /* Writes the radio register at the specified address */
 void SX1257Write(uint8_t addr, uint8_t data);

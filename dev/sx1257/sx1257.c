@@ -48,15 +48,22 @@ void SX1257SetRxConfig(uint32_t RxFreq, SX1257_RxLnaGain_t RxLnaGain,
                        uint8_t RxAdcBw, uint8_t RxAdcTrim,
                        SX1257_RxBasebandBw_t RxBasebandBw, SX1257_RxPllBw_t RxPllBw)
 {
-    SX1257SetSleep();
-
-    cpuDelay_ms(10);
+    //SX1257SetSleep();
+    //cpuDelay_ms(10);
 
     SX1257.Settings.RxFreq = RxFreq;
     RxFreq = (uint32_t)((double)RxFreq / (double)SX1257_FREQ_STEP);
     SX1257Write(SX1257_REG_FRF_RX_MSB, (uint8_t)(( RxFreq >> 16) & 0xFF));
     SX1257Write(SX1257_REG_FRF_RX_MID, (uint8_t)(( RxFreq >> 8) & 0xFF));
     SX1257Write(SX1257_REG_FRF_RX_LSB, (uint8_t)(RxFreq & 0xFF));
+
+/* Test freq
+volatile uint32_t initialFreq;
+ initialFreq = (double)(((uint32_t)SX1257Read(SX1257_REG_FRF_RX_MSB) << 16) |
+                              ((uint32_t)SX1257Read( SX1257_REG_FRF_RX_MID) << 8) |
+                              ((uint32_t)SX1257Read( SX1257_REG_FRF_RX_LSB))) * (double)SX1257_FREQ_STEP;
+*/
+
 
     SX1257.Settings.RxLnaGain = RxLnaGain;
     SX1257.Settings.RxBasebandGain = RxBasebandGain;
@@ -76,9 +83,8 @@ void SX1257SetTxConfig(uint32_t TxFreq, SX1257_TxDacGain_t TxDacGain,
                        uint8_t TXMixerGain, SX1257_TxPllBw_t TxPllBw,
                        uint8_t TxAnaBw, uint8_t TxDacBw)
 {
-    SX1257SetSleep();
-
-    cpuDelay_ms(10);
+    //SX1257SetSleep();
+    //cpuDelay_ms(10);
 
     SX1257.Settings.TxFreq = TxFreq;
     TxFreq = (uint32_t)((double)TxFreq / (double)SX1257_FREQ_STEP);
@@ -112,6 +118,21 @@ void SX1257Reset(void)
 
     // Wait 20 ms
     cpuDelay_ms(20);
+}
+
+void SX1257SetLoopBack(uint8_t digital, uint8_t rf)
+{
+    SX1257Write(SX1257_REG_CLK_SELECT, ((((uint8_t)digital) & 0x01) << 3) | ((((uint8_t)rf) & 0x01) << 2) | 0x02);
+}
+
+uint8_t SX1257GetPllLockRx(void)
+{
+    return !!(SX1257Read(SX1257_REG_MODE_STATUS) & 0x02);
+}
+
+uint8_t SX1257GetPllLockTx(void)
+{
+    return !!(SX1257Read(SX1257_REG_MODE_STATUS) & 0x01);
 }
 
 void SX1257Write(uint8_t addr, uint8_t data)

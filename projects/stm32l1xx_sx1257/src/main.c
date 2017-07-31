@@ -3,15 +3,40 @@
 #define RF_FREQUENCY                    868000000 // Hz
 
 void boardInit(void);
-void radio_init(void);
+void RadioSetRX(void);
+void RadioSetTX(void);
+void RX_or_TX(void);
 
 Gpio_t LED_BLUE, LED_GREEN, BUTTON;
 extern SX1257_t SX1257;
 
 int main()
 {
+    volatile uint8_t tmp = 0;
+
     boardInit();
-    radio_init();
+    SX1257Init();
+
+//////////
+/*
+    SX1257SetLoopBack(0, 1);
+
+    RadioSetRX();
+    RadioSetTX();
+
+    SX1257SetStby();
+
+    while(!SX1257GetPllLockRx());
+    while(!SX1257GetPllLockTx());
+
+    GpioWrite(&LED_GREEN, 1);
+    GpioWrite(&LED_BLUE, 1);
+*/
+//////////
+
+    RX_or_TX();
+
+    //tmp = SX1257Read(SX1257_REG_VERSION);
 
     while(1) {
         __WFI();
@@ -20,44 +45,61 @@ int main()
     return 0;
 }
 
+void RadioSetRX(void)
+{
+    SX1257SetRxConfig(RF_FREQUENCY,
+                      SX1257_RX_LNA_GAIN_0dB,
+                      0x0C,                             // RxBasebandGain
+                      SX1257_LNA_Z_IN_200Ohm,
+                      0x07,                             // RxAdcBw (111 = 400kHz < RxAdcBw)
+                      0x06,                             // RxAdcTrim (32MHz)
+                      SX1257_RX_BASE_BAND_BW_500KHz,
+                      SX1257_RX_PLL_BW_75KHz);
+
+    SX1257EnableRX(1);
+}
+
+void RadioSetTX()
+{
+    SX1257SetTxConfig(RF_FREQUENCY,
+                      SX1257_TX_DAC_GAIN_3dB,
+                      0x0E,                             // TXMixerGain
+                      SX1257_TX_PLL_BW_150KHZ,
+                      0x00,                             // TxAnaBw (209KHz)
+                      0x05);                            // TxDacBw
+
+    SX1257EnableTX(1);
+}
+
 volatile uint8_t rx_tx = 0;
 void RX_or_TX(void)
 {
     rx_tx = !rx_tx;
 
+    SX1257SetSleep();
+    cpuDelay_ms(10);
+
     if(rx_tx) {
-        SX1257SetRxConfig(RF_FREQUENCY,
-                          SX1257_RX_LNA_GAIN_m0dB,
-                          0x0F,                             // RxBasebandGain
-                          SX1257_LNA_Z_IN_50Ohm,
-                          0x07,                             // RxAdcBw (111 = 400kHz < RxAdcBw)
-                          0x06,                             // RxAdcTrim (32MHz)
-                          SX1257_RX_BASE_BAND_BW_500KHz,
-                          SX1257_RX_PLL_BW_300KHz);
-        SX1257EnableRX(1);
+        RadioSetRX();
 
         GpioWrite(&LED_GREEN, 1); // RX enable
-        GpioWrite(&LED_BLUE, 0);
+        GpioWrite(&LED_BLUE, 0);  // TX enable
+
+        SX1257SetStby();
+        while(!SX1257GetPllLockRx()) {
+            cpuDelay_ms(1);
+        }
     } else {
-        SX1257SetTxConfig(RF_FREQUENCY,
-                          SX1257_TX_DAC_GAIN_m3dB,
-                          0x0E,                             // TXMixerGain
-                          SX1257_TX_PLL_BW_300KHZ,
-                          0x18,                             // TxAnaBw (504KHz)
-                          0x00);                            // TxDacBw
-        SX1257EnableTX(1);
+        RadioSetTX();
 
-        GpioWrite(&LED_GREEN, 0);
-        GpioWrite(&LED_BLUE, 1); // TX enable
+        GpioWrite(&LED_GREEN, 0); // RX enable
+        GpioWrite(&LED_BLUE, 1);  // TX enable
+
+        SX1257SetStby();
+        while(!SX1257GetPllLockTx()) {
+            cpuDelay_ms(1);
+        }
     }
-
-    SX1257SetStby();
-}
-
-void radio_init(void) {
-    SX1257Init();
-
-    RX_or_TX();
 }
 
 void boardInit(void) {

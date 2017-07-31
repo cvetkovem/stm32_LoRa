@@ -152,7 +152,7 @@ void boardInit(void) {
     //NVIC_EnableIRQ(TIM6_IRQn);
     RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;
     TIM4->PSC = 0xA40F; //41999
-    TIM4->ARR = 0x07CF; //1999
+    TIM4->ARR = 0x018F;//0x07CF; //1999
     TIM4->DIER |= TIM_DIER_UIE;
     TIM4->CR1 |= TIM_CR1_CEN;
 
